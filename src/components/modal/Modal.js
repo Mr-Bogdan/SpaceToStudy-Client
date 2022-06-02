@@ -11,6 +11,7 @@ const Modal = ({ content, closeModal }) => {
       message: 'questions.confirmation',
       title: 'titles.confirmTitle' 
     })
+    
     if (confirmed) {
       closeModal()
     }
@@ -19,7 +20,7 @@ const Modal = ({ content, closeModal }) => {
   return (
     <Dialog maxWidth="xl" onClose={ onClose } open>
       <Box sx={ { p: 2 } }>
-        <IconButton onClick={ onClose } sx={ { float: 'right' } }>
+        <IconButton data-testid='close-modal' onClick={ onClose } sx={ { float: 'right' } }>
           <CloseIcon />
         </IconButton>
         <Box>
