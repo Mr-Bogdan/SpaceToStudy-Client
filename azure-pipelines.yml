@@ -1,39 +1,55 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- devops
+  - develop
+  - devops
+  - main
 
-pool:
-  vmImage: ubuntu-latest
+pr:
+  - develop
+  - devops
+  - main
+  
+variables:
+  agentOS: ubuntu-latest
 
-steps:
-- script: pwd
-  displayName: 'Run a one-line script'
+stages:
+  - stage: Build
+    displayName: Build and push docker image
+    jobs: 
+      - job: Build
+        pool:
+         vmImage: $(agentOS)
+        steps:
+        - task: Docker@2
+          inputs:
+            containerRegistry: 'S2sStage-Registry'
+            repository: 'front-stage'
+            command: 'buildAndPush'
+            Dockerfile: '**/Dockerfile'
+            tags: '$(Build.BuildId)'
 
-- script: |
-    ls -la
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+        
 
-- task: Docker@2
-  inputs:
-    containerRegistry: 'S2sStage-Registry'
-    repository: 'front-stage'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
-
-- task: AzureRmWebAppDeployment@4
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'S2s-Service'
-    appType: 'webAppContainer'
-    WebAppName: 'front-stage'
-    DockerNamespace: 'S2sStage'
-    DockerRepository: 'front-stage'
-    DockerImageTag: 'latest'
-
+  - stage: deploy
+    jobs:
+      - deployment: DeployCore
+        displayName: Deploy image to app service
+        environment: 'prod'
+      - job: Deploy
+        pool:
+          vmImage: $(agentOS)
+          strategy:
+          runOnce:
+            deploy:
+              steps:
+              - download: none
+              - task: AzureRmWebAppDeployment@4
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: 'S2s-Service'
+                  appType: 'webAppContainer'
+                  WebAppName: 'front-stage'
+                  DockerNamespace: 'S2sStage'
+                  DockerRepository: 'front-stage'
+                  DockerImageTag: '$(Build.BuildId)'
 
 
