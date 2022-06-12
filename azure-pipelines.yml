@@ -21,6 +21,16 @@ stages:
         pool:
          vmImage: ubuntu-latest
         steps:
+        - task: DownloadSecureFile@1
+          name: envStage
+          condition: eq(variables['Build.SourceBranch'], 'refs/heads/develop')
+          inputs:
+            secureFile: 'env-front-stage'
+        - task: Bash@3
+          name: setEnvStage
+          inputs:
+            targetType: 'inline'
+            script: 'mv $(envStage.secureFilePath) .env'
         - task: Docker@2
           inputs:
             containerRegistry: 'S2sStage-Registry'
@@ -37,7 +47,7 @@ stages:
             WebAppName: 'front-stage'
             DockerNamespace: 'S2sStage'
             DockerRepository: 'front-stage'
-            DockerImageTag: 'latest'
+            DockerImageTag: '$(Build.BuildId)'
 
 
 
