@@ -56,6 +56,7 @@ stages:
     jobs:
       - deployment: DeployCore
         displayName: Deploy image to app service
+        environment: 'prod'
       - job: Deploy
         pool:
           vmImage: $(agentOS)
