@@ -64,7 +64,7 @@ stages:
              ConnectionType: 'AzureRM'
              azureSubscription: 'S2s-Service'
              appType: 'webAppContainer'
-             WebAppName: 'front-stage'
+             WebAppName: 's2s-front-stage'
              DockerNamespace: 'S2sStage'
              DockerRepository: 'front-stage'
              DockerImageTag: '$(Build.BuildId)'
